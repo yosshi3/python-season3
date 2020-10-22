@@ -1,0 +1,18 @@
+
+windows10での環境構築メモ
+
+python3.7で環境構築
+
+conda install -c pytorch pytorch-cpu
+
+pip install torchtext
+
+conda install scikit-learn
+
+
+
+
+まだインストールしていない
+conda install -c pytorch torchvision-cpu
+
+
