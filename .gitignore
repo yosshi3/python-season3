@@ -1,0 +1,21 @@
+# build directory
+
+build
+dist
+
+# pyc files
+*.pyc
+*.pyo
+
+# log files
+*.log
+
+/**/__pycache__
+
+webapi/
+
+/**/*.csv
+/**/*.pkl
+/**/*.pth
+/**/*.lnk
+*.zip
