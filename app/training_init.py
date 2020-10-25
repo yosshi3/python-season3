@@ -6,8 +6,9 @@ import torch
 import torchtext
 from janome.tokenizer import Tokenizer
 import jaconv
+import dill
 
-from seq2seq import Encoder,Decoder,Seq2Seq,evaluate_model
+from seq2seq import evaluate_model,create_seq2seq
 
 ##### 対話文の取得
 
@@ -65,26 +66,28 @@ print(reply_field.vocab.stoi)
 print(reply_field.vocab.itos)
 
 ##### データセットの保存
+torch.save(train_data.examples, path + "train_examples.pkl", pickle_module=dill)
+torch.save(test_data.examples, path + "test_examples.pkl", pickle_module=dill)
 
-import dill
-
-torch.save(train_data.examples, path+"train_examples.pkl", pickle_module=dill)
-torch.save(test_data.examples, path+"test_examples.pkl", pickle_module=dill)
-
-torch.save(input_field, path+"input_field.pkl", pickle_module=dill)
-torch.save(reply_field, path+"reply_field.pkl", pickle_module=dill)
+torch.save(input_field, path + "input_field.pkl", pickle_module=dill)
+torch.save(reply_field, path + "reply_field.pkl", pickle_module=dill)
 
 ##### データセットの読み込み
 
-train_examples = torch.load(path+"train_examples.pkl", pickle_module=dill)
+train_examples = torch.load(path + "train_examples.pkl", pickle_module=dill)
 test_examples = torch.load(path+"test_examples.pkl", pickle_module=dill)
 
-input_field = torch.load(path+"input_field.pkl", pickle_module=dill)
-reply_field = torch.load(path+"reply_field.pkl", pickle_module=dill)
+input_field = torch.load(path + "input_field.pkl", pickle_module=dill)
+reply_field = torch.load(path + "reply_field.pkl", pickle_module=dill)
 
-train_data = torchtext.data.Dataset(train_examples, [("inp_text", input_field), ("rep_text", reply_field)])
-test_data = torchtext.data.Dataset(test_examples, [("inp_text", input_field), ("rep_text", reply_field)])
-
+train_data = torchtext.data.Dataset(
+    train_examples, 
+    [("inp_text", input_field), ("rep_text", reply_field)]
+    )
+test_data = torchtext.data.Dataset(
+    test_examples, 
+    [("inp_text", input_field), ("rep_text", reply_field)]
+    )
 
 ##### Iteratorの設定
 
@@ -119,22 +122,11 @@ import torch.nn as nn
 #is_gpu = True  # GPUを使用するかどうか
 is_gpu = False
 
-n_h = 1024
-n_vocab_inp = len(input_field.vocab.itos)
-n_vocab_rep = len(reply_field.vocab.itos)
-n_emb = 300
-n_out = n_vocab_rep
 early_stop_patience = 5  # 早期終了のタイミング（何回連続で誤差が上昇したら終了か）
-num_layers = 1
-bidirectional = True
-dropout = 0.1
 clip = 100.0
 
 # Seq2Seqのモデルを構築
-encoder = Encoder(n_h, n_vocab_inp, n_emb, 
-                  input_field, num_layers, bidirectional, dropout=dropout)
-decoder = Decoder(n_h, n_out, n_vocab_rep, n_emb, num_layers, dropout=dropout)
-seq2seq = Seq2Seq(encoder, decoder, is_gpu=is_gpu)
+encoder, decoder, seq2seq = create_seq2seq(input_field, reply_field, is_gpu)
 
 # 誤差関数
 loss_fnc = nn.CrossEntropyLoss(ignore_index=reply_field.vocab.stoi["<pad>"])
@@ -235,5 +227,4 @@ for key in seq2seq.state_dict():
     print(key, ": ", seq2seq.state_dict()[key].size())
 # print(seq2seq.state_dict()["encoder.embedding.weight"][0])  # 　パラメータの一部を表示
 
-torch.save(seq2seq.state_dict(), "model_seq2seq.pth")  
-
+torch.save(seq2seq.to('cpu').state_dict(), path + "model_seq2seq.pth")

@@ -4,15 +4,13 @@ sys.path.append('.')
 
 import torch
 import torchtext
+import dill
 
-from seq2seq import Encoder,Decoder,Seq2Seq,evaluate_model
+from seq2seq import evaluate_model,create_seq2seq
 
 ##### 対話文の取得
 
 path = "./"  # 保存場所を指定
-
-
-import dill
 
 ##### データセットの読み込み
 
@@ -30,7 +28,6 @@ test_data = torchtext.data.Dataset(
     test_examples, 
     [("inp_text", input_field), ("rep_text", reply_field)]
     )
-
 
 ##### Iteratorの設定
 
@@ -65,24 +62,11 @@ import torch.nn as nn
 #is_gpu = True  # GPUを使用するかどうか
 is_gpu = False
 
-n_h = 1024
-n_vocab_inp = len(input_field.vocab.itos)
-n_vocab_rep = len(reply_field.vocab.itos)
-n_emb = 300
-n_out = n_vocab_rep
 early_stop_patience = 5  # 早期終了のタイミング（何回連続で誤差が上昇したら終了か）
-num_layers = 1
-bidirectional = True
-dropout = 0.1
 clip = 100.0
 
 ##### データのリストア
-
-encoder = Encoder(n_h, n_vocab_inp, n_emb, 
-                  input_field, num_layers, bidirectional, dropout=dropout)
-decoder = Decoder(n_h, n_out, n_vocab_rep, n_emb, num_layers, dropout=dropout)
-seq2seq = Seq2Seq(encoder, decoder, is_gpu=is_gpu)
-
+encoder, decoder, seq2seq = create_seq2seq(input_field, reply_field, is_gpu)
 seq2seq.load_state_dict(torch.load("model_seq2seq.pth", map_location=torch.device("cpu")))  #CPU対応
 
 
@@ -162,16 +146,6 @@ for i in range(100):
 
     evaluate_model(seq2seq, test_iterator, input_field, reply_field)
 
-    # ----- 早期終了 -----
-#     latest_min = min(record_loss_test[-(early_stop_patience):])  # 直近の最小値
-#     if len(record_loss_test) >= early_stop_patience:
-#         if latest_min > min_loss_test:  # 直近で最小値が更新されていなければ
-#             print("Early stopping!")
-#             break
-#         min_loss_test = latest_min
-#     else:
-#         min_loss_test = latest_min
-
 ##### 誤差の推移
 
 import matplotlib.pyplot as plt
@@ -189,6 +163,6 @@ plt.show()
 # state_dict()の表示
 for key in seq2seq.state_dict():
     print(key, ": ", seq2seq.state_dict()[key].size())
-# print(seq2seq.state_dict()["encoder.embedding.weight"][0])  # 　パラメータの一部を表示
 
 torch.save(seq2seq.state_dict(), "model_seq2seq.pth")  
+

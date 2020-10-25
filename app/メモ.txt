@@ -9,9 +9,6 @@ pip install torchtext
 
 conda install scikit-learn
 
-
-
-
 まだインストールしていない
 conda install -c pytorch torchvision-cpu
 

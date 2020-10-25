@@ -7,36 +7,20 @@ import torch
 from janome.tokenizer import Tokenizer
 import dill
 
-from seq2seq import Encoder,Decoder,Seq2Seq,evaluate_model
+from seq2seq import evaluate_model,create_seq2seq
 
 j_tk = Tokenizer()
 def tokenizer(text): 
     return [tok for tok in j_tk.tokenize(text, wakati=True)]  # 内包表記
 
-
 class Predictor:
     def __init__(self, path='./'):
         self.input_field = torch.load(path+"input_field.pkl", pickle_module=dill)
         self.reply_field = torch.load(path+"reply_field.pkl", pickle_module=dill)
-    
         #is_gpu = True  # GPUを使用するかどうか
         is_gpu = False
-    
-        n_h = 1024
-        n_vocab_inp = len(self.input_field.vocab.itos)
-        n_vocab_rep = len(self.reply_field.vocab.itos)
-        n_emb = 300
-        n_out = n_vocab_rep
-        early_stop_patience = 5  # 早期終了のタイミング（何回連続で誤差が上昇したら終了か）
-        num_layers = 1
-        bidirectional = True
-        dropout = 0.1
-        clip = 100.0
-    
-        encoder = Encoder(n_h, n_vocab_inp, n_emb, 
-                        self.input_field, num_layers, bidirectional, dropout=dropout)
-        decoder = Decoder(n_h, n_out, n_vocab_rep, n_emb, num_layers, dropout=dropout)
-        self.seq2seq = Seq2Seq(encoder, decoder, is_gpu=is_gpu)
+        encoder, decoder, seq2seq = create_seq2seq(self.input_field, self.reply_field, is_gpu)
+        self.seq2seq = seq2seq
         self.seq2seq.load_state_dict(torch.load(path+"model_seq2seq.pth", 
                                            map_location=torch.device("cpu")))  #CPU対応
         self.seq2seq.eval()  # 評価モード
