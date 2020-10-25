@@ -102,10 +102,9 @@ for i in range(epoch):
         y_dec = seq2seq(x_enc, x_dec)
 
         t_dec = rep.cuda() if is_gpu else rep
-        loss = loss_fnc(
-            y_dec.view(-1, y_dec.size()[2]),
-            t_dec.view(-1)
-            )
+        loss = loss_fnc(y_dec.view(-1, y_dec.size()[2]),
+                        t_dec.view(-1)
+                        )
         loss_train += loss.item()
         optimizer_enc.zero_grad()
         optimizer_dec.zero_grad()
@@ -132,10 +131,9 @@ for i in range(epoch):
         y_dec = seq2seq(x_enc, x_dec)
 
         t_dec = rep.cuda() if is_gpu else rep
-        loss = loss_fnc(
-            y_dec.view(-1, y_dec.size()[2]),
-            t_dec.view(-1)
-            )
+        loss = loss_fnc(y_dec.view(-1, y_dec.size()[2]),
+                        t_dec.view(-1)
+                        )
         loss_test += loss.item()
     loss_test /= j+1
     record_loss_test.append(loss_test)

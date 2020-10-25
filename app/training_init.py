@@ -51,8 +51,13 @@ reply_field.build_vocab(train_data, min_freq=1)
 print(input_field.vocab.freqs)  # 各単語の出現頻度
 print(input_field.vocab.stoi)
 print(input_field.vocab.itos)
+print()
+print(reply_field.vocab.freqs)  # 各単語の出現頻度
 print(reply_field.vocab.stoi)
 print(reply_field.vocab.itos)
+print()
+for example in train_data.examples[:10]:
+    print(example.inp_text, example.rep_text)
 
 ##### データセットの保存
 torch.save(train_data.examples, path + "train_examples.pkl", pickle_module=dill)
