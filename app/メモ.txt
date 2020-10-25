@@ -1,15 +1,13 @@
 
-windows10‚Å‚ÌŠÂ‹«\’zƒƒ‚
+windows10ã§ã®ç’°å¢ƒæ§‹ç¯‰ãƒ¡ãƒ¢
 
-python3.7‚ÅŠÂ‹«\’z
+python3.7ã§ç’°å¢ƒæ§‹ç¯‰
 
 conda install -c pytorch pytorch-cpu
-
+conda install scikit-learn
 pip install torchtext
 
-conda install scikit-learn
-
-‚Ü‚¾ƒCƒ“ƒXƒg[ƒ‹‚µ‚Ä‚¢‚È‚¢
+ã¾ã ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã—ã¦ã„ãªã„
 conda install -c pytorch torchvision-cpu
 
 
