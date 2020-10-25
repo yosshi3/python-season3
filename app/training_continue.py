@@ -54,7 +54,7 @@ from torch import optim
 import torch.nn as nn
 
 #is_gpu = True  # GPUを使用するかどうか
-is_gpu = False
+is_gpu = torch.cuda.is_available()
 
 early_stop_patience = 5  # 早期終了のタイミング（何回連続で誤差が上昇したら終了か）
 clip = 100.0
@@ -86,8 +86,10 @@ record_loss_train = []
 record_loss_test = []
 min_losss_test = 0.0
 
+epoch = 1000 if is_gpu else 100
+
 # 学習
-for i in range(100):
+for i in range(epoch):
     # 訓練モード
     seq2seq.train()
 
