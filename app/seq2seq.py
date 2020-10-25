@@ -22,8 +22,7 @@ class Encoder(nn.Module):
         self.input_field = input_field
 
     def forward(self, x):
-        # 文章の長さを取得
-        idx_pad = self.input_field.vocab.stoi["<pad>"]
+        idx_pad = self.input_field.vocab.stoi["<pad>"]  # 文章の長さを取得
         sentence_lengths = x.size()[1] - (x == idx_pad).sum(dim=1)
         y = self.embedding(x)  # 単語をベクトルに変換
         y = self.embedding_dropout(y)

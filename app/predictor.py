@@ -2,11 +2,9 @@
 import sys
 sys.path.append('.')
 import re
-
 import torch
 from janome.tokenizer import Tokenizer
 import dill
-
 from seq2seq import evaluate_model,create_seq2seq
 
 j_tk = Tokenizer()
@@ -21,8 +19,8 @@ class Predictor:
         is_gpu = False
         encoder, decoder, seq2seq = create_seq2seq(self.input_field, self.reply_field, is_gpu)
         self.seq2seq = seq2seq
-        self.seq2seq.load_state_dict(torch.load(path+"model_seq2seq.pth", 
-                                           map_location=torch.device("cpu")))  #CPU対応
+        self.seq2seq.load_state_dict(torch.load(path + "model_seq2seq.pth",
+                                                map_location=torch.device("cpu")))  #CPU対応
         self.seq2seq.eval()  # 評価モード
 
     def predict(self, text):
@@ -41,7 +39,6 @@ class Predictor:
         return re.sub('(<sos>|<eos>)','',rep_text)
 
 if __name__ == "__main__":
-
     pre = Predictor()
     text = '個別郵便番号'
     rep_text = pre.predict(text)

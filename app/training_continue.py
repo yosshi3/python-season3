@@ -1,24 +1,20 @@
 # coding: utf-8
 import sys
 sys.path.append('.')
-
 import torch
 import torchtext
 import dill
-
 from seq2seq import evaluate_model,create_seq2seq
 
 ##### 対話文の取得
-
 path = "./"  # 保存場所を指定
 
 ##### データセットの読み込み
+train_examples = torch.load(path + "train_examples.pkl", pickle_module=dill)
+test_examples = torch.load(path + "test_examples.pkl", pickle_module=dill)
 
-train_examples = torch.load(path+"train_examples.pkl", pickle_module=dill)
-test_examples = torch.load(path+"test_examples.pkl", pickle_module=dill)
-
-input_field = torch.load(path+"input_field.pkl", pickle_module=dill)
-reply_field = torch.load(path+"reply_field.pkl", pickle_module=dill)
+input_field = torch.load(path + "input_field.pkl", pickle_module=dill)
+reply_field = torch.load(path + "reply_field.pkl", pickle_module=dill)
 
 train_data = torchtext.data.Dataset(
     train_examples, 
@@ -30,7 +26,6 @@ test_data = torchtext.data.Dataset(
     )
 
 ##### Iteratorの設定
-
 batch_size = 32
 
 train_iterator = torchtext.data.Iterator(
@@ -55,7 +50,6 @@ print(batch.rep_text.size())  # ミニバッチにおける応答のサイズ
 print(batch.rep_text[0])  # 最初の要素
 
 ##### 学習
-
 from torch import optim
 import torch.nn as nn
 
@@ -65,16 +59,20 @@ is_gpu = False
 early_stop_patience = 5  # 早期終了のタイミング（何回連続で誤差が上昇したら終了か）
 clip = 100.0
 
-##### データのリストア
+##### seq2seqの構築
 encoder, decoder, seq2seq = create_seq2seq(input_field, reply_field, is_gpu)
-seq2seq.load_state_dict(torch.load("model_seq2seq.pth", map_location=torch.device("cpu")))  #CPU対応
 
+##### データのリストア
+try:
+    seq2seq.load_state_dict(torch.load(path + "model_seq2seq.pth", 
+                                       map_location=torch.device("cpu")))  #CPU対応
+except FileNotFoundError:
+    print("modelファイルが無いので初期パラメータから学習します。")
 
 # state_dict()の表示
 for key in seq2seq.state_dict():
     print(key, ": ", seq2seq.state_dict()[key].size())
 # print(seq2seq.state_dict()["encoder.embedding.weight"][0])  # 　パラメータの一部を表示
-
 
 # 誤差関数
 loss_fnc = nn.CrossEntropyLoss(ignore_index=reply_field.vocab.stoi["<pad>"])
@@ -147,7 +145,6 @@ for i in range(100):
     evaluate_model(seq2seq, test_iterator, input_field, reply_field)
 
 ##### 誤差の推移
-
 import matplotlib.pyplot as plt
 
 plt.plot(range(len(record_loss_train)), record_loss_train, label="Train")
@@ -159,10 +156,9 @@ plt.ylabel("Error")
 plt.show()
 
 ##### データの保存
-
 # state_dict()の表示
 for key in seq2seq.state_dict():
     print(key, ": ", seq2seq.state_dict()[key].size())
 
-torch.save(seq2seq.state_dict(), "model_seq2seq.pth")  
+torch.save(seq2seq.state_dict(), path + "model_seq2seq.pth")  
 
