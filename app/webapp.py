@@ -1,7 +1,6 @@
 from flask import Flask,send_from_directory
 
-import sys,os
-sys.path.append(os.path.abspath(".."))
+import os
 from predictor import Predictor
 
 app = Flask(__name__)
@@ -13,8 +12,8 @@ def favicon():
 
 @app.route("/<req>")
 def index(req):
-    pre = Predictor('../')
-    return pre.predict(req)
+    pre = Predictor()
+    return {"予想結果":pre.predict(req)}
 
 if __name__ == "__main__":
     app.run(port=8888)

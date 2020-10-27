@@ -1,0 +1,10 @@
+torch==1.6.0+cpu
+torchvision==0.7.0+cpu
+torchtext==0.6.0
+numpy==1.19.2
+Pillow==8.0.1
+janome
+jaconv
+matplotlib
+dill
+flask

@@ -86,7 +86,7 @@ record_loss_train = []
 record_loss_test = []
 min_losss_test = 0.0
 
-epoch = 1000 if is_gpu else 100
+epoch = 1000 if is_gpu else 1
 
 # 学習
 for i in range(epoch):
@@ -97,13 +97,14 @@ for i in range(epoch):
     for j, batch in enumerate(train_iterator):
         inp, rep = batch.inp_text, batch.rep_text
         x_enc = inp
-        x_dec = torch.ones(rep.size(), dtype=torch.long) * reply_field.vocab.stoi["<sos>"]
-        x_dec[:, 1:] = rep[:, :-1]
-        y_dec = seq2seq(x_enc, x_dec)
+        sos_id = reply_field.vocab.stoi["<sos>"]                   # <sos>のid取得
+        x_dec = torch.ones(rep.size(), dtype=torch.long) * sos_id  # 正解テンソルを<sos>で初期化 
+        x_dec[:, 1:] = rep[:, :-1]     # x_decの1列目以降にrepの最終列を削ったものを代入
+        y_dec = seq2seq(x_enc, x_dec)  # y_decは、batchsize × 時系列 × rep単語数
 
         t_dec = rep.cuda() if is_gpu else rep
-        loss = loss_fnc(y_dec.view(-1, y_dec.size()[2]),
-                        t_dec.view(-1)
+        loss = loss_fnc(y_dec.view(-1, y_dec.size()[2]),  # y_dec.size()[2]はrep単語数
+                        t_dec.view(-1)                    # 正解idxを１行にreshape
                         )
         loss_train += loss.item()
         optimizer_enc.zero_grad()
@@ -114,7 +115,7 @@ for i in range(epoch):
         optimizer_enc.step()
         optimizer_dec.step()
 
-        if j%1000==0:
+        if j % 100 == 0:
             print("batch:", str(j)+"/"+str(len(train_data)//batch_size+1), "loss:", loss.item())
     loss_train /= j+1
     record_loss_train.append(loss_train)
@@ -126,15 +127,13 @@ for i in range(epoch):
     for j, batch in enumerate(test_iterator):
         inp, rep = batch.inp_text, batch.rep_text
         x_enc = inp
-        
-        sos_id = reply_field.vocab.stoi["<sos>"]             # <sos>のid取得
+        sos_id = reply_field.vocab.stoi["<sos>"]                   # <sos>のid取得
         x_dec = torch.ones(rep.size(), dtype=torch.long) * sos_id  # 正解テンソルを<sos>で初期化 
-        # print(rep[:, :])
         # print(rep[:, :-1])           # 最後の１列を削除
         # print(x_dec[:, 1:])          # 2列目から最終列まで指定
-        x_dec[:, 1:] = rep[:, :-1]   # x_decの1列目以降にrepの最終列を削ったものを代入
+        x_dec[:, 1:] = rep[:, :-1]     # x_decの1列目以降にrepの最終列を削ったものを代入
         # print(x_dec)
-        y_dec = seq2seq(x_enc, x_dec)  # y_dec.size() batchsize×時系列×rep単語数
+        y_dec = seq2seq(x_enc, x_dec)  # y_decは、batchsize × 時系列 × rep単語数
 
         t_dec = rep.cuda() if is_gpu else rep
         loss = loss_fnc(y_dec.view(-1, y_dec.size()[2]),  # y_dec.size()[2]はrep単語数
@@ -144,11 +143,11 @@ for i in range(epoch):
     loss_test /= j+1
     record_loss_test.append(loss_test)
 
-    if i%10 == 0:
+    if i % 100 == 0:
         print("Epoch:", i, "Loss_Train:", loss_train, "Loss_Test:", loss_test)
-        print()
-        evaluate_model(seq2seq, test_iterator, input_field, reply_field)
         accuracy_rate(reply_field, y_dec, rep, is_gpu)
+        print()
+    evaluate_model(seq2seq, test_iterator, input_field, reply_field)
 
 ##### 誤差の推移
 import matplotlib.pyplot as plt

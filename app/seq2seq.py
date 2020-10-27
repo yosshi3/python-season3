@@ -168,24 +168,23 @@ def create_seq2seq(input_field, reply_field, is_gpu):
 
 def accuracy_rate(reply_field, y_dec, rep, is_gpu):
     torch.set_printoptions(precision=0, linewidth=100, sci_mode=False) 
-    y_dec_tmp = y_dec.argmax(2)    # 正解の確率マトリクスから、正解マトリクスを取得
+    y_dec_tmp = y_dec.argmax(2)    # 予測の確率マトリクスから、予測マトリクスを取得
     print("予測結果:y_dec_tmp:\n" , y_dec_tmp)
     
     eos_id = reply_field.vocab.stoi["<eos>"]
     pad_id = reply_field.vocab.stoi["<pad>"]
-    eos_tensor = torch.ones(rep.shape, dtype=torch.long) * eos_id
-    rep_tmp = torch.where(rep != pad_id, rep, eos_tensor)  # <pad>を<eos>で置換
+    eos_tensor = torch.ones(rep.shape, dtype=torch.long) * eos_id  # repの形で<eos>マトリクス作成
+    rep_tmp = torch.where(rep != pad_id, rep, eos_tensor)  # 予測マトリクスと比較するため、
+                                                           # 正解マトリクス内の<pad>を<eos>で置換
     print("答え:rep:\n" , rep_tmp)
-
     if is_gpu:
         y_dec_tmp = y_dec_tmp.cuda()
         rep_tmp = rep_tmp.cuda()
-    
-    tmp = (y_dec_tmp == rep_tmp)  # テンソル成分をtrue falseに置換
+    tmp = (y_dec_tmp == rep_tmp)  # 予測と正解を比較。テンソル成分をtrue falseに置換
     print("答え:tmp:" , tmp)
     tmp, _ = tmp.min(dim=1)   # 行で全部一致していれば、true。一個でも違えばfalse。
-    total_count = tmp.size()[0]  # 正解件数取得
+    total_count = tmp.size()[0]  #  比較した全件数を取得
     print("答え:tmp,total_count:" , tmp, total_count)
-    correct_count = tmp.sum().item()       # 全部一致している行の数をカウント
+    correct_count = tmp.sum().item()       # 全部一致している行の件数を取得
     print("correct_count:" , correct_count)
     print("正解率:" , correct_count / total_count)

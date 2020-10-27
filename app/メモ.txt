@@ -1,13 +1,11 @@
 
 windows10での環境構築メモ
 
-python3.7で環境構築
-
-conda install -c pytorch pytorch-cpu
-conda install scikit-learn
-pip install torchtext
-
-まだインストールしていない
-conda install -c pytorch torchvision-cpu
+①anacondaで、python3.7で環境構築
+②コンソールからpip install -r requirements.txt
+③training_init.py、training_continue.py、predictor.pyを実行
+④webapp.pyでwebサーバ起動
+⑤ブラウザから、以下リクエスト
+http://127.0.0.1:8888/個別郵便番号
 
 

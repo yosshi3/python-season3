@@ -12,11 +12,11 @@ path = "./"  # 保存場所を指定
 
 j_tk = Tokenizer()
 def tokenizer(text): 
-    return [tok for tok in j_tk.tokenize(text, wakati=True)]  # 内包表記
+    return [tok for tok in j_tk.tokenize(text, wakati=True)]
  
 def tokenizer_hira(text): 
     tk = j_tk.tokenize(text)
-    return [jaconv.kata2hira(token.reading) for token in tk]  # 内包表記
+    return [jaconv.kata2hira(token.reading) for token in tk]
 
 # データセットの列を定義
 input_field = torchtext.data.Field(  # 入力文
@@ -44,6 +44,9 @@ train_data, test_data = torchtext.data.TabularDataset.splits(
     fields=[("inp_text", input_field), ("rep_text", reply_field)]  # 列の設定
     )
 
+for example in train_data.examples[:10]:
+    print(example.inp_text, example.rep_text)
+
 # 単語とインデックスの対応
 input_field.build_vocab(train_data, min_freq=1)
 reply_field.build_vocab(train_data, min_freq=1)
@@ -56,8 +59,6 @@ print(reply_field.vocab.freqs)  # 各単語の出現頻度
 print(reply_field.vocab.stoi)
 print(reply_field.vocab.itos)
 print()
-for example in train_data.examples[:10]:
-    print(example.inp_text, example.rep_text)
 
 ##### データセットの保存
 torch.save(train_data.examples, path + "train_examples.pkl", pickle_module=dill)
