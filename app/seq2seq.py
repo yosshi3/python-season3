@@ -84,34 +84,26 @@ class Seq2Seq(nn.Module):
     def forward(self, x_encoder, x_decoder):  # 訓練に使用
         if self.is_gpu:
             x_encoder, x_decoder = x_encoder.cuda(), x_decoder.cuda()
-
         batch_size = x_decoder.shape[0]
         n_time = x_decoder.shape[1]
         y_encoder, h = self.encoder(x_encoder)
-
         y_decoder = torch.zeros(batch_size, n_time, self.decoder.n_out)
         if self.is_gpu:
             y_decoder = y_decoder.cuda()
-
         for t in range(0, n_time):
             x = x_decoder[:, t:t+1]  # Decoderの入力を使用
             y, h= self.decoder(x, h, y_encoder)
             y_decoder[:, t:t+1, :] = y
         return y_decoder
 
-    def predict(self, x_encoder):  # 予測に使用
+    def predict(self, x_encoder, n_time):  # 予測に使用
         if self.is_gpu:
             x_encoder = x_encoder.cuda()
-
         batch_size = x_encoder.shape[0]
-#        n_time = x_encoder.shape[1]
-        n_time = x_encoder.shape[1] + 2       #<sos>と<eos>を追加するため　2020/10/23 by ishida
         y_encoder, h = self.encoder(x_encoder)
-
         y_decoder = torch.zeros(batch_size, n_time, dtype=torch.long)
         if self.is_gpu:
             y_decoder = y_decoder.cuda() 
-
         y = torch.ones(batch_size, 1, dtype=torch.long
                        ) * self.encoder.input_field.vocab.stoi["<sos>"]
         for t in range(0, n_time):
@@ -123,13 +115,11 @@ class Seq2Seq(nn.Module):
             y_decoder[:, t:t+1] = y  
         return y_decoder
 
-def evaluate_model(model, iterator, input_field, reply_field, silent = False):
+def evaluate_model(model, iterator, input_field, reply_field, y_n_time, silent = False):
     model.eval()  # 評価モード
-
     batch = next(iter(iterator))
     x = batch.inp_text
-    # 予測する
-    y = model.predict(x)
+    y = model.predict(x, y_n_time)  # 予測する
     for i in range(x.size()[0]):
         inp_text = ""
         for j in range(x.size()[1]):
@@ -143,7 +133,7 @@ def evaluate_model(model, iterator, input_field, reply_field, silent = False):
             word = reply_field.vocab.itos[y[i][j]]
 #            if word=="<eos>":
 #                break
-            rep_text += word
+            rep_text += " " + word           # 一時的に空白でつなげる 2020/10/28
 
         if not silent:
             print("input:", inp_text)
@@ -169,22 +159,16 @@ def create_seq2seq(input_field, reply_field, is_gpu):
 def accuracy_rate(reply_field, y_dec, rep, is_gpu):
     torch.set_printoptions(precision=0, linewidth=100, sci_mode=False) 
     y_dec_tmp = y_dec.argmax(2)    # 予測の確率マトリクスから、予測マトリクスを取得
-    print("予測結果:y_dec_tmp:\n" , y_dec_tmp)
-    
     eos_id = reply_field.vocab.stoi["<eos>"]
     pad_id = reply_field.vocab.stoi["<pad>"]
     eos_tensor = torch.ones(rep.shape, dtype=torch.long) * eos_id  # repの形で<eos>マトリクス作成
     rep_tmp = torch.where(rep != pad_id, rep, eos_tensor)  # 予測マトリクスと比較するため、
                                                            # 正解マトリクス内の<pad>を<eos>で置換
-    print("答え:rep:\n" , rep_tmp)
     if is_gpu:
         y_dec_tmp = y_dec_tmp.cuda()
         rep_tmp = rep_tmp.cuda()
     tmp = (y_dec_tmp == rep_tmp)  # 予測と正解を比較。テンソル成分をtrue falseに置換
-    print("答え:tmp:" , tmp)
     tmp, _ = tmp.min(dim=1)   # 行で全部一致していれば、true。一個でも違えばfalse。
     total_count = tmp.size()[0]  #  比較した全件数を取得
-    print("答え:tmp,total_count:" , tmp, total_count)
     correct_count = tmp.sum().item()       # 全部一致している行の件数を取得
-    print("correct_count:" , correct_count)
     print("正解率:" , correct_count / total_count)
