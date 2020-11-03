@@ -142,12 +142,12 @@ def evaluate_model(model, iterator, input_field, reply_field, y_n_time, silent =
     return inp_text, rep_text
 
 def create_seq2seq(input_field, reply_field, is_gpu):
-    n_h = 1024
+    n_h = 32
     n_vocab_inp = len(input_field.vocab.itos)
     n_vocab_rep = len(reply_field.vocab.itos)
-    n_emb = 300
+    n_emb = 16
     n_out = n_vocab_rep
-    num_layers = 1
+    num_layers = 2
     bidirectional = True
     dropout = 0.1
     encoder = Encoder(n_h, n_vocab_inp, n_emb, 

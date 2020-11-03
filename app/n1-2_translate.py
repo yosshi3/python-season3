@@ -9,7 +9,7 @@ import itertools
 ##### 対話文の取得
 path = "./"  # 保存場所を指定
 
-j_tk = Tokenizer("userdic.csv.txt", udic_enc="utf8")
+j_tk = Tokenizer("userdic.csv", udic_enc="utf8")
 
 def tokenizer(text): 
     tk = j_tk.tokenize(text, wakati=True)

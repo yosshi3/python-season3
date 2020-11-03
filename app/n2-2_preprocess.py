@@ -8,7 +8,7 @@ import dill
 
 path = "./"
 
-j_tk = Tokenizer("userdic.csv.txt", udic_enc="utf8")
+j_tk = Tokenizer("userdic.csv", udic_enc="utf8")
 def tokenizer(text): 
     return [tok for tok in j_tk.tokenize(text, wakati=True)]
  

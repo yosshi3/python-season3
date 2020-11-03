@@ -8,7 +8,7 @@ import jaconv
 ##### 対話文の取得
 path = "./"  # 保存場所を指定
 
-j_tk = Tokenizer("userdic.csv.txt", udic_enc="utf8")
+j_tk = Tokenizer("userdic.csv", udic_enc="utf8")
 def tokenizer_hira(text): 
     tk = j_tk.tokenize(text)
     return [jaconv.kata2hira(token.reading) for token in tk]

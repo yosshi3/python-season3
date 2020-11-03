@@ -57,12 +57,12 @@ for key in seq2seq.state_dict():
 
 loss_fnc = nn.CrossEntropyLoss(ignore_index=reply_field.vocab.stoi["<pad>"])
 optimizer_enc = optim.Adam(seq2seq.parameters(), lr=0.0001)
-optimizer_dec = optim.Adam(seq2seq.parameters(), lr=0.0005)
+optimizer_dec = optim.Adam(seq2seq.parameters(), lr=0.001)
 
 record_loss_train = []
 record_loss_test = []
 min_losss_test = 0.0
-epoch = 1000 if is_gpu else 200
+epoch = 1500 if is_gpu else 5000
 
 for i in range(epoch):
     seq2seq.train()    # 訓練モード
@@ -87,7 +87,7 @@ for i in range(epoch):
         optimizer_enc.step()
         optimizer_dec.step()
 
-        if i % 20 == 0:
+        if i % 100 == 0:
             print("TRAIN Epoch:",i," Batch:", 
                   str(j)+"/"+str(len(train_data)//batch_size+1), "loss:", loss.item())
     loss_train /= j+1
@@ -112,11 +112,12 @@ for i in range(epoch):
     # loss_test /= j+1
     # record_loss_test.append(loss_test)
 
-    if i % 20 == 0:
+    if i % 100 == 0:
         # print("EVAL Epoch:", i, " Loss_Train:", loss_train, "Loss_Test:", loss_test)
-        accuracy_rate(reply_field, y_dec, rep, is_gpu)
-        print()
         evaluate_model(seq2seq, test_iterator, input_field, reply_field, rep_n_time)
+        print("TRAIN Epoch:",i," Batch:", 
+              str(j)+"/"+str(len(train_data)//batch_size+1), "loss:", loss.item())
+        accuracy_rate(reply_field, y_dec, rep, is_gpu)
 
 ##### 誤差の推移
 plt.plot(range(len(record_loss_train)), record_loss_train, label="Train")
