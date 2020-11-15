@@ -66,6 +66,7 @@ common\functions.py
   [0.00214401 0.0158422  0.11705891 0.86495488]]]
 
 問題１０）問題９）の結果で、numpyの精度を少数２桁に変更する。
+※以下を利用する
 np.get_printoptions()
 np.set_printoptions()
 
@@ -75,7 +76,13 @@ np.set_printoptions()
  [[0.   0.02 0.12 0.86]
   [0.   0.02 0.12 0.86]]]
 
-問題１１）-5～5までの範囲(0.1刻み)で、
+問題１１）問題１０）の結果に、２軸方向で、総和を求める。
+※np.sum()を利用する
+
+[[1. 1.]
+ [1. 1.]]
+
+問題１２）-5～5までの範囲(0.1刻み)で、
 以下のstep_functionとsigmoid関数のグラフを表示する。
 common\functions.py
 
@@ -130,6 +137,14 @@ np.set_printoptions(precision=2)
 print(np.get_printoptions())
 
 print(y2)
+
+y3 = np.sum(y2,axis=-1)
+
+print()
+print("np.sum(y2,axis=-1)")
+print(y3)
+
+
 
 x = np.arange(-5, 6,step=0.1,dtype=float)
 y1 = step_function(x)
