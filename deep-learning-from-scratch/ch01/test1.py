@@ -59,6 +59,9 @@
 問題９）問題４）の結果に、以下の関数をsoftmax関数を適用する。
 common\functions.py
 http://arduinopid.web.fc2.com/N45.html
+# $
+{y_i = \frac{e^{x_i}}{\sum_{j=1}^N e^{x_j}} = \frac{e^{(x_i-x_{max})}}{\sum_{j=1}^N e^{(x_j-x_{max})}}}
+$
 
 [[[0.0320586  0.08714432 0.23688282 0.64391426]
   [0.0320586  0.08714432 0.23688282 0.64391426]]
