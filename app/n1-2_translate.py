@@ -28,7 +28,7 @@ with open(path + "dialogues.csv", encoding='utf8') as f:
     lst = [inp[0] for inp in reader]
 
 lst2 = [[x] + get2pair(list(tokenizer(x))) for x in lst]
-lst3 = list(itertools.chain.from_iterable(lst2))
+lst3 = list(set(itertools.chain.from_iterable(lst2)))
 lst4 = [[x, ' '.join(tokenizer_hira(x))] for x in lst3]
 
 with open(path + "dialogues_translate.csv", 'w', encoding='utf8', newline='') as f:
