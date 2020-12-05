@@ -53,18 +53,31 @@ if __name__ == '__main__':
     x0 = np.arange(-2, 2.5, 0.5)
     x1 = np.arange(-2, 2.5, 0.5)
     X, Y = np.meshgrid(x0, x1)
-    
+
+    shp = X.shape
     X = X.flatten()
     Y = Y.flatten()
 
     grad = numerical_gradient(function_2, np.array([X, Y]).T).T
 
-    plt.figure()
-    plt.quiver(X, Y, -grad[0], -grad[1],  angles="xy",color="#666666")
-    plt.xlim([-2, 2])
-    plt.ylim([-2, 2])
+    fig = plt.figure()
+    ax = Axes3D(fig)
+    
+    Z = function_2(np.array([X, Y]).T).T
+    Z = Z.reshape(shp)
+    X = X.reshape(shp)
+    Y = Y.reshape(shp)
+
+    ax.plot_wireframe(X,Y,Z, color='blue')
+    ax.quiver(X,Y,Z,-grad[0].reshape(shp),-grad[1].reshape(shp),0
+              , length=0.2, arrow_length_ratio=0.5, color='green')
+    plt.xlim([-2.5, 2.5])
+    plt.ylim([-2.5, 2.5])
     plt.xlabel('x0')
     plt.ylabel('x1')
     plt.grid()
+
+    ax.view_init(elev=30, azim=30)
+
     plt.draw()
     plt.show()
