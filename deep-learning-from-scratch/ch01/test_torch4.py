@@ -15,7 +15,7 @@ y1 = func(x)
 
 plt.plot(x.detach().numpy(), y1.detach().numpy(), label="y=f(x)")
 
-for i in range(2):
+for i in range(4):
     y1 = torch.autograd.grad(y1, x, create_graph=True, grad_outputs=torch.ones(x.shape))
     plt.plot(x.detach().numpy(), y1[0].detach().numpy(), 
              linestyle = "--", label="y=f" + "'" * (i+1) +  "(x)")

@@ -8,7 +8,6 @@ from matplotlib import animation
 def _numerical_gradient_no_batch(f, x):
     h = 1e-4  # 0.0001
     grad = np.zeros_like(x)
-    
     for idx in range(x.size):
         tmp_val = x[idx]
         x[idx] = float(tmp_val) + h
@@ -24,10 +23,8 @@ def numerical_gradient(f, X):
         return _numerical_gradient_no_batch(f, X)
     else:
         grad = np.zeros_like(X)
-        
         for idx, x in enumerate(X):
             grad[idx] = _numerical_gradient_no_batch(f, x)
-        
         return grad
 
 def function_2(x):
@@ -38,7 +35,6 @@ def function_2(x):
 
 def tangent_line(f, x):
     d = numerical_gradient(f, x)
-    print(d)
     y = f(x) - d*x
     return lambda t: d*t + y
 
@@ -48,15 +44,11 @@ ax = Axes3D(fig)
 x0 = np.arange(-2, 2.5, 0.5)
 x1 = np.arange(-2, 2.5, 0.5)
 X, Y = np.meshgrid(x0, x1)
-
 shp = X.shape
-X = X.flatten()
-Y = Y.flatten()
+X,Y = X.flatten(), Y.flatten()
 grad = numerical_gradient(function_2, np.array([X, Y]).T).T
 Z = function_2(np.array([X, Y]).T).T
-Z = Z.reshape(shp)
-X = X.reshape(shp)
-Y = Y.reshape(shp)
+X,Y,Z = X.reshape(shp), Y.reshape(shp), Z.reshape(shp)
 
 def plot(i):
     plt.cla()
@@ -68,7 +60,10 @@ def plot(i):
     plt.ylabel('x1')
     plt.xlim([-2.5, 2.5])
     plt.ylim([-2.5, 2.5])
-    ax.view_init(elev=30, azim=i)
+    ax.view_init(elev=20, azim=i*10)
 
-ani = animation.FuncAnimation(fig, plot, interval=10,frames=360)
+plot(1)
+plt.draw()
+plt.show()
+ani = animation.FuncAnimation(fig, plot, interval=300,frames=36)
 ani.save('vector_field.gif', writer='pillow')
