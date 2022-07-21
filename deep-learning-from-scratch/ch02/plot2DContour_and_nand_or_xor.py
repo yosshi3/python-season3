@@ -13,8 +13,8 @@ def XOR(x1, x2):
 
 def plot2DContour(operator):
     '''0から１の2次元座標で、1なら赤、0なら青に色分けする'''
-    xs = np.arange(0,11,step=1) / 10
-    ys = np.arange(0,11,step=1) / 10
+    xs = np.arange(-50,150,step=1) / 100
+    ys = np.arange(-50,150,step=1) / 100
     xx,yy = np.meshgrid(xs,ys)
     color = np.zeros((len(xs),len(ys)), dtype=np.int8)
 
@@ -25,6 +25,9 @@ def plot2DContour(operator):
     # 等高線を描画する
     plt.contourf(xx, yy, color, cmap='rainbow')
     plt.colorbar(label="contour level")
+    plt.xticks([0, 1])
+    plt.yticks([0, 1])
+    plt.grid(color = "gray", linestyle="--")
     plt.show()
 
 if __name__ == '__main__':
