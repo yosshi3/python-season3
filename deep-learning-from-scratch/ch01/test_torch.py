@@ -90,84 +90,141 @@ np.set_printoptions()
 以下のstep_functionとsigmoid関数のグラフを表示する。
 common\functions.py
 
+問題１３）y=x^3の３回微分のグラフを表示する。
+
 '''
 
 # coding: utf-8
-import sys, os
-sys.path.append(os.pardir)
 
-import numpy as np
-from common.functions import step_function,sigmoid,softmax
 import matplotlib.pyplot as plt
 import torch
 
-np.set_printoptions(precision=8)
-print(np.get_printoptions())
-
-x = np.arange(1, 17)
-x = x.reshape(2,2,4)
+torch.set_printoptions(precision=5)
 
 t = torch.arange(1.0, 17)
 t = t.reshape(2,2,4)
 x = t
 
+print('x[1] * 2')
 print(x[1] * 2)
 print()
-print()
 
-x[1,:,:] = x[1] * 2
-
+print('x[1] = x[1] * 2')
+x[1] = x[1] * 2
 print(x)
 
 print()
-print("np.max(x, axis=0)")
-print(torch.max(x, 0))
+print("torch.max(x, dim=0)-----0軸のMAX")
+print(torch.max(x, dim=0))
+print("-----")
 
 print()
-print("np.max(x, axis=-1, keepdims=True)")
-print(torch.max(x, -1, keepdims=True))
+print("torch.max(x, dim=-1, keepdims=True)----- -1軸のMAX")
+print(torch.max(x, dim=-1, keepdims=True))
+print("-----")
 
 
-print("x - np.max(x, axis=-1, keepdims=True)")
-x1 = x - torch.max(x, -1, keepdims=True)[0]
+print("x - torch.max(x, dim=-1, keepdims=True)[0]-----")
+x1 = x - torch.max(x, dim=-1, keepdims=True)[0]
 print(x1)
+print("-----")
 
 print()
-print("np.exp()")
-print(np.exp(x1))
+print("torch.exp()")
+print(torch.exp(x1))
 
-y2 = softmax(x.numpy())
-
-func = torch.nn.Softmax(-1)
-y2 = func(x)
+y2 = torch.nn.Softmax(dim=-1)(x)
 
 print()
-print("softmax()")
+print("torch.nn.Softmax(dim=-1)")
 print(y2)
 
-np.set_printoptions(precision=2)
-print(np.get_printoptions())
-
-print(y2)
-
-#y3 = np.sum(y2,axis=-1)
-y3 = torch.sum(y2,-1)
-
+y3 = torch.sum(y2,dim=-1)
 
 print()
 print("np.sum(y2,axis=-1)")
 print(y3)
 
+# step & softmax
+x = torch.arange(-5, 6,step=0.1,dtype=float,requires_grad=True)
+y1 = torch.nn.ReLU()(x)
+y1.backward(gradient=torch.ones(x.shape))
+y1 = x.grad
+y2 = torch.nn.Sigmoid()(x)
 
-
-x = np.arange(-5, 6,step=0.1,dtype=float)
-y1 = step_function(x)
-y2 = sigmoid(x)
-
-plt.plot(x, y1, label="step")
-plt.plot(x, y2, linestyle = "--", label="softmax")
+plt.plot(x.detach().numpy(), y1.detach().numpy(), label="ReLU")
+plt.plot(x.detach().numpy(), y2.detach().numpy(), linestyle = "--", label="softmax")
 plt.xlabel("x") # x軸のラベル
 plt.ylabel("y") # y軸のラベル
 plt.title('step & softmax')
 plt.legend()
 plt.show()
+
+print()
+print('1回微分')
+torch.set_printoptions(precision=2)
+x = torch.arange(-2, 2.1,step=0.1,dtype=float,requires_grad=True)
+func = lambda x : x ** 3
+y1 = func(x)
+gradients = torch.ones(x.shape)
+# 1回微分を求める
+y1.backward(gradient=gradients) # backword()は、通常は１変数のみ。複数変数の時はgradientと内積をとる。
+y2 = x.grad
+plt.plot(x.detach().numpy(), y1.detach().numpy(), label="y=f(x)")
+plt.plot(x.detach().numpy(), y2.numpy(), linestyle = "--", label="dy/dx")
+plt.xlabel("x")
+plt.ylabel("y")
+plt.yticks(list(range(-14,14,2)))
+plt.grid()
+plt.title('dy/dx')
+plt.legend()
+plt.show()
+
+# https://qiita.com/tmasada/items/9dee38e5bc1482217493
+# torch.autograd.grad()を呼ぶときにcreate_graph=Trueとしているのがポイントです。
+# こうすると、微分係数（上の場合は48）だけでなく、
+# ffのxxに関する微分について計算グラフを作って、それも返してくれます。
+# すると、その計算グラフを使うことで、2階の微分係数が計算できるようになります。
+print()
+print('2回微分')
+x = torch.arange(-2, 2.1,step=0.1,dtype=float,requires_grad=True)
+func = lambda x : x ** 3
+y1 = func(x)
+# 1回微分を求める
+y2 = torch.autograd.grad(y1, x, create_graph=True, grad_outputs=torch.ones(x.shape))
+# 2回微分を求める
+y2[0].backward(torch.ones(x.shape))
+y3 = x.grad
+plt.plot(x.detach().numpy(), y1.detach().numpy(), label="y=f(x)")
+plt.plot(x.detach().numpy(), y2[0].detach().numpy(), linestyle = "--", label="y=f'(x)")
+plt.plot(x.detach().numpy(), y3.numpy(), linestyle = "--", label="y=f\"(x)")
+plt.xlabel("x")
+plt.ylabel("y")
+plt.yticks(list(range(-14,14,2)))
+plt.grid()
+plt.legend()
+plt.show()
+
+print()
+print('3回微分')
+x = torch.arange(-2, 2.1,step=0.1,dtype=float,requires_grad=True)
+func = lambda x : x ** 3
+y1 = func(x)
+plt.plot(x.detach().numpy(), y1.detach().numpy(), label="y=f(x)")
+for i in range(3):
+    y1 = torch.autograd.grad(y1, x, create_graph=True, grad_outputs=torch.ones(x.shape))
+    plt.plot(x.detach().numpy(), y1[0].detach().numpy(), 
+             linestyle = "--", label="y=f" + "'" * (i+1) +  "(x)")
+
+plt.xlabel("x")
+plt.ylabel("y")
+plt.yticks(list(range(-14,14,2)))
+plt.grid()
+plt.legend()
+plt.show()
+
+
+
+
+
+
