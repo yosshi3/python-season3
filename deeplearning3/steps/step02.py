@@ -7,17 +7,17 @@ class Variable:
 
 
 class Function:
-    def __call__(self, input):
+    def __call__(self, input):   # callするとforward()する
         x = input.data
         y = self.forward(x)
-        output = Variable(y)
+        output = Variable(y)     # Variable()にくるむ
         return output
 
     def forward(self, in_data):
         raise NotImplementedError()
 
 
-class Square(Function):
+class Square(Function):    # Functionを継承する
     def forward(self, x):
         return x ** 2
 

@@ -5,7 +5,7 @@ class Variable:
     def __init__(self, data):
         self.data = data
         self.grad = None
-        self.creator = None
+        self.creator = None # 生みの親
 
     def set_creator(self, func):
         self.creator = func
