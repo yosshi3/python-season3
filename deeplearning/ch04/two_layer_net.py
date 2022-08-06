@@ -1,7 +1,7 @@
 # coding: utf-8
 import sys, os
 sys.path.append(os.pardir)  # 親ディレクトリのファイルをインポートするための設定
-from common.functions import *
+from common.functions import sigmoid,softmax,cross_entropy_error,sigmoid_grad
 from common.gradient import numerical_gradient
 import numpy as np
 
@@ -23,15 +23,15 @@ class TwoLayerNet:
         a1 = np.dot(x, W1) + b1
         z1 = sigmoid(a1)
         a2 = np.dot(z1, W2) + b2
-        y = softmax(a2)
+        y = softmax(a2)              # 出力層にソフトマックス
         
         return y
         
     # x:入力データ, t:教師データ
-    def loss(self, x, t):
-        y = self.predict(x)
-        
-        return cross_entropy_error(y, t)
+    def loss(self, x, t):    # x.shape(100, 784) t.shape(100, 10)
+        y = self.predict(x)  # y.shape(100, 10)
+        c = cross_entropy_error(y, t)    # 交差エントロピー誤差
+        return c             # c.shape(1,)
     
     def accuracy(self, x, t):
         y = self.predict(x)
@@ -43,8 +43,9 @@ class TwoLayerNet:
         
     # x:入力データ, t:教師データ
     def numerical_gradient(self, x, t):
-        loss_W = lambda W: self.loss(x, t)
-        
+        print('def numerical_gradient() input.shape:',x.shape)
+        print('def numerical_gradient() result.shape:',t.shape)
+        loss_W = lambda dummy: self.loss(x, t)
         grads = {}
         grads['W1'] = numerical_gradient(loss_W, self.params['W1'])
         grads['b1'] = numerical_gradient(loss_W, self.params['b1'])

@@ -1,9 +1,25 @@
 # coding: utf-8
-from and_gate import AND
-from or_gate import OR
-from nand_gate import NAND
 import numpy as np
 import matplotlib.pyplot as plt
+
+def NAND(x1, x2):
+    x = np.array([x1, x2])
+    w = np.array([-0.5, -0.5])
+    b = 0.7
+    tmp = np.sum(w*x) + b
+    if tmp <= 0:
+        return 0
+    else:
+        return 1
+    
+def NOT(x):
+    return NAND(x,x)
+
+def AND(x1, x2):
+    return NOT(NAND(x1,x2))
+
+def OR(x1, x2):
+    return NAND(NOT(x1),NOT(x2))
 
 def XOR(x1, x2):
     s1 = NAND(x1, x2)

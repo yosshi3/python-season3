@@ -34,11 +34,12 @@ def numerical_gradient_2d(f, X):
 def numerical_gradient(f, x):
     h = 1e-4 # 0.0001
     grad = np.zeros_like(x)
-    
+    print('def numerical_gradient(f, x) grad.shape:',grad.shape)
     it = np.nditer(x, flags=['multi_index'], op_flags=['readwrite'])
     while not it.finished:
         idx = it.multi_index
         tmp_val = x[idx]
+        # print('idx:',idx,'tmp_val:',tmp_val)
         x[idx] = tmp_val + h
         fxh1 = f(x) # f(x+h)
         
