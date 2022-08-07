@@ -4,7 +4,7 @@ sys.path.append(os.pardir)  # 親ディレクトリのファイルをインポ�
 import numpy as np
 import matplotlib.pyplot as plt
 from collections import OrderedDict
-from common.optimizer import *
+from common.optimizer import SGD,Momentum,AdaGrad,Adam
 
 
 def f(x, y):
@@ -54,6 +54,7 @@ for key in optimizers:
     Z[mask] = 0
     
     # plot 
+    plt.rcParams["figure.figsize"] = (12.8, 9.6)
     plt.subplot(2, 2, idx)
     idx += 1
     plt.plot(x_history, y_history, 'o-', color="red")

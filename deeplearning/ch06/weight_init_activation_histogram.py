@@ -43,6 +43,7 @@ for i in range(hidden_layer_size):
     activations[i] = z
 
 # ヒストグラムを描画
+plt.rcParams["figure.figsize"] = (12.8, 9.6)
 for i, a in activations.items():
     plt.subplot(1, len(activations), i+1)
     plt.title(str(i+1) + "-layer")

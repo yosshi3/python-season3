@@ -53,6 +53,7 @@ for i in range(max_iterations):
 
 # 3.グラフの描画==========
 markers = {'std=0.01': 'o', 'Xavier': 's', 'He': 'D'}
+plt.rcParams["figure.figsize"] = (12.8, 9.6)
 x = np.arange(max_iterations)
 for key in weight_init_types.keys():
     plt.plot(x, smooth_curve(train_loss[key]), marker=markers[key], markevery=100, label=key)

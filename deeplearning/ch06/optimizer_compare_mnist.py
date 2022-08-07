@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 from dataset.mnist import load_mnist
 from common.util import smooth_curve
 from common.multi_layer_net import MultiLayerNet
-from common.optimizer import *
-
+from common.optimizer import SGD,Momentum,AdaGrad,Adam
+import numpy as np
 
 # 0:MNISTデータの読み込み==========
 (x_train, t_train), (x_test, t_test) = load_mnist(normalize=True)
@@ -57,6 +57,7 @@ for i in range(max_iterations):
 # 3.グラフの描画==========
 markers = {"SGD": "o", "Momentum": "x", "AdaGrad": "s", "Adam": "D"}
 x = np.arange(max_iterations)
+plt.rcParams["figure.figsize"] = (12.8, 9.6)
 for key in optimizers.keys():
     plt.plot(x, smooth_curve(train_loss[key]), marker=markers[key], markevery=100, label=key)
 plt.xlabel("iterations")

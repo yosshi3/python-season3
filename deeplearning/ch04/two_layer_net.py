@@ -35,16 +35,14 @@ class TwoLayerNet:
     
     def accuracy(self, x, t):
         y = self.predict(x)
-        y = np.argmax(y, axis=1)
-        t = np.argmax(t, axis=1)
+        y = np.argmax(y, axis=1)  # 予想結果の数字
+        t = np.argmax(t, axis=1)  # 正解の数字 1hot表現から抽出
         
         accuracy = np.sum(y == t) / float(x.shape[0])
-        return accuracy
+        return accuracy, y, t
         
     # x:入力データ, t:教師データ
-    def numerical_gradient(self, x, t):
-        print('def numerical_gradient() input.shape:',x.shape)
-        print('def numerical_gradient() result.shape:',t.shape)
+    def numerical_gradient(self, x, t): # x.shape: (100, 784) t.shape: (100, 10)
         loss_W = lambda dummy: self.loss(x, t)
         grads = {}
         grads['W1'] = numerical_gradient(loss_W, self.params['W1'])
@@ -54,7 +52,7 @@ class TwoLayerNet:
         
         return grads
         
-    def gradient(self, x, t):
+    def gradient(self, x, t):    # 誤差逆伝播法
         W1, W2 = self.params['W1'], self.params['W2']
         b1, b2 = self.params['b1'], self.params['b2']
         grads = {}

@@ -60,6 +60,7 @@ def __train(weight_init_std):
 weight_scale_list = np.logspace(0, -4, num=16)
 x = np.arange(max_epochs)
 
+plt.rcParams["figure.figsize"] = (12.8, 9.6)
 for i, w in enumerate(weight_scale_list):
     print( "============== " + str(i+1) + "/16" + " ==============")
     train_acc_list, bn_train_acc_list = __train(w)

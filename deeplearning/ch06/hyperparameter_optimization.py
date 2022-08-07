@@ -57,7 +57,7 @@ graph_draw_num = 20
 col_num = 5
 row_num = int(np.ceil(graph_draw_num / col_num))
 i = 0
-
+plt.rcParams["figure.figsize"] = (12.8, 9.6)
 for key, val_acc_list in sorted(results_val.items(), key=lambda x:x[1][-1], reverse=True):
     print("Best-" + str(i+1) + "(val acc:" + str(val_acc_list[-1]) + ") | " + key)
 
